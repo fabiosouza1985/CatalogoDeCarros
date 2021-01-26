@@ -1,0 +1,14 @@
+.container{
+    margin: 20px;
+}
+
+.mat-form-field{
+    margin-right: 10px;
+}
+
+.table-container {
+    width: 100%;
+    overflow: auto;
+    max-height: calc(100vh - 250px);
+    margin-top: 20px;
+}

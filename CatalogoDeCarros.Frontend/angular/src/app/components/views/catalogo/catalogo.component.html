@@ -1,0 +1,197 @@
+
+<div class="container">
+
+    <mat-grid-list cols="2" rowHeight="160px">
+        <mat-grid-tile>
+            <mat-card>
+                <mat-card-header>
+                    <mat-card-title>Selecione o ano e a refência abaixo:</mat-card-title>
+
+                </mat-card-header>
+
+                <mat-card-content>
+
+                    <div>
+                        <mat-form-field hintLabel="Ano do Modelo" appearance="fill">
+                            <mat-label>Selecione o ano</mat-label>
+                            <mat-select [disabled]="carregando==true" [(ngModel)]="ano_selecionado" (ngModelChange)="ObterVeiculos()">
+                                <mat-option *ngFor="let ano of anos" [value]="ano">{{ano}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="fill">
+                            <mat-label>Selecione a referência</mat-label>
+                            <mat-select [disabled]="carregando==true" [(ngModel)]="referencia_selecionada" (ngModelChange)="ObterVeiculos()">
+                                <mat-option *ngFor="let referencia of referencias" [value]="referencia">{{referencia}}</mat-option>
+                            </mat-select>
+                            <mat-hint align="end">Referência da tabela FIPE</mat-hint>
+                        </mat-form-field>
+
+                    </div>
+
+                </mat-card-content>
+               
+                <mat-card-footer>
+                    <span *ngIf="carregando == true" style="margin-left:20px">Aguarde, carregando os dados. Pode levar alguns minutos....</span>
+                </mat-card-footer>
+            </mat-card>
+        </mat-grid-tile>
+
+        <mat-grid-tile>
+
+            <mat-card>
+                <mat-card-header>
+                    <mat-card-title>Calcular Valor de Revenda:</mat-card-title>
+
+                </mat-card-header>
+
+                <mat-card-content>
+
+                    <div>
+                        <mat-form-field hintLabel="% de Custo" appearance="fill">
+                            <mat-label>Informe o custo (%)</mat-label>
+                            <input matInput type="number" [(ngModel)]="custo" />
+
+                        </mat-form-field>
+
+                        <button mat-raised-button color="primary"
+                                [disabled]="veiculos.length == 0 || custo == null || carregando == true"
+                                (click)="CalcularValorRevenda()">
+                            Aplicar
+                        </button>
+                    </div>
+
+                </mat-card-content>
+                
+            </mat-card>
+
+        </mat-grid-tile>
+    </mat-grid-list>
+
+    
+
+    <div class="table-container mat-elevation-z6" *ngIf="veiculos.length > 0">
+        <table mat-table [dataSource]="veiculos">
+            <ng-container matColumnDef="Marca">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Marca</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+
+                        <input matInput type="text"
+                               [(ngModel)]="element.marca">
+                    </mat-form-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Modelo">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Modelo</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+
+                        <input matInput type="text"
+                               [(ngModel)]="element.modelo">
+                    </mat-form-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="AnoModelo">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Ano</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+
+                        <input matInput type="number"
+                               [(ngModel)]="element.anoModelo">
+                    </mat-form-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="CodigoFipe">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Codigo FIPE</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+
+                        <input matInput type="text"
+                               [(ngModel)]="element.codigoFipe">
+                    </mat-form-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="PrecoMedio">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Preço Médio</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+
+                        <input matInput type="number"
+                               [(ngModel)]="element.precoMedio">
+                    </mat-form-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ValorRevenda">
+
+                <th mat-header-cell *matHeaderCellDef>
+                    <mat-label mat-sort-header>Valor de Revenda</mat-label>
+                </th>
+
+                <td mat-cell *matCellDef="let element;">
+                    <mat-form-field appearance="standard">
+                        <span matPrefix>R$&nbsp;</span>
+                        <mat-label>Valor de Venda</mat-label>
+                        <input matInput type="number"
+                               [(ngModel)]="element.valorRevenda"
+                               step="0.01"
+                               ng-pattern="/^[0-9]+(\.[0-9]{1,2})?$/">
+                    </mat-form-field>
+                  
+                  
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+
+                    <button (click)="AdicionarVeiculo(element)" mat-icon-button *ngIf="element.codigo === 0" title="Adicionar Veículo">
+                        <mat-icon>add</mat-icon>
+                    </button>
+
+                    <button (click)="AtualizarVeiculo(element)" mat-icon-button *ngIf="element.codigo !== 0" title="Salvar Alterações">
+                        <mat-icon>save</mat-icon>
+                    </button>
+                    <button (click)="RemoverVeiculo(element)" mat-icon-button *ngIf="element.codigo !== 0" title="Remover Veículo">
+                        <mat-icon>remove</mat-icon>
+                    </button>
+                </td>
+
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['Marca', 'Modelo', 'AnoModelo', 'CodigoFipe', 'PrecoMedio', 'ValorRevenda', 'Actions']; sticky: true"></tr>
+
+            <tr mat-row *matRowDef="let row; columns: ['Marca', 'Modelo', 'AnoModelo', 'CodigoFipe', 'PrecoMedio', 'ValorRevenda', 'Actions'];"></tr>
+
+        </table>
+    </div>
+</div>
+
+
+
